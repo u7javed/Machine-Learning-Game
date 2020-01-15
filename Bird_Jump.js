@@ -32,7 +32,6 @@ let mutationRate = 0.2;
 let birdGenerationNumber = 1;
 let bestFitness = 0;
 let isSufficientlyTrained = 0;
-let relativeTextHeight = 60;
 
 //machine learning screen
 let machineLearningIsRunning = 0;
@@ -41,7 +40,7 @@ let neuralNetworkAnimation = [];
 
 //title screen variables
 let titleScreenIsRunning = 1;
-let titlePageBirdYPosition = 200;
+let titlePageBirdYPosition;
 let titlePageBirdVelocity = 0;
 let instructionScreenRunning = 0;
 let isSinglePlayer = false;
@@ -132,8 +131,19 @@ function Neuron(x, y, n) {
 
 }
 
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
+	resetVariables();
+	titleScreenIsRunning = true;
+	machineLearningIsRunning = false;
+	instructionScreenRunning = false;
+	isSinglePlayer = false;
+	titlePageBirdYPosition = windowHeight/4;
+}
+
 function setup() {
-	createCanvas(1400, 800);
+	createCanvas(windowWidth, windowHeight);
+	titlePageBirdYPosition = windowHeight/4;
 	//increaseTimeDurationSlider = createSlider(1, 100, 1);
 }
 
@@ -144,12 +154,12 @@ function startLearning() {
 	}
 	for(let i = 80; i <= 340; i += 40) {
 		if(i >= 120 && i <= 300) {
-			neuralNetworkAnimation.push(new Neuron(880 + 110, i, 1));
+			neuralNetworkAnimation.push(new Neuron(width/1.6 + 40, i, 1));
 		}
-		neuralNetworkAnimation.push(new Neuron(910 + ((1300 - 880)/ 2), i, 2));
+		neuralNetworkAnimation.push(new Neuron(((width/1.6) + (width - 160))/2, i, 2));
 	}
-	neuralNetworkAnimation.push(new Neuron(1300 - 60, 180, 3));
-	neuralNetworkAnimation.push(new Neuron(1300 - 60, 220, 3));
+	neuralNetworkAnimation.push(new Neuron(width - 160, 180, 3));
+	neuralNetworkAnimation.push(new Neuron(width - 160, 220, 3));
 
 	for(let i = 0; i < neuralNetworkAnimation.length; i++) {
 		neuralNetworkAnimation[i].addNodes(neuralNetworkAnimation);
@@ -173,37 +183,47 @@ function draw() {
 function mousePressed() {
 	//machine learning screen
 	if(machineLearningIsRunning) {
-		if(mouseX >= 1290 && mouseX <= 1390 && mouseY >= 680 + relativeTextHeight && mouseY <= 720 + relativeTextHeight) {
+
+		//return button
+		if(mouseX >= (width - 110) && mouseX <= (width - 10) && mouseY >= (height - 40) && mouseY <= (height - 5)) {
 			machineLearningIsRunning = 0;
 			titleScreenIsRunning = 1;
 		}
-		if(mouseX >= 938 && mouseX <= 1197 && mouseY <= 717 + relativeTextHeight && mouseY >= 683 + relativeTextHeight) {
-			if((mouseX - 938) <= 1) {
+		//time lapse scroll
+		if(mouseX >= (width/1.6 + 20) && mouseX <= (width/1.6 + 18 + (width - width/1.6)/2) && mouseY >= (390 + height/2.9) && mouseY <= (400 + height/2.9 + height/36)) {
+			if(mouseX <= (width/1.6 + 20)) {
 				rectWidth = 1;
 			} else {
-				rectWidth = mouseX - 938;
+				rectWidth = mouseX - (width/1.6 + 20);
 			}
 		}
-		if(mouseX >= 1270 && mouseX < 1395 && mouseY >= 640 + relativeTextHeight && mouseY <= 670 + relativeTextHeight) {
+		//reset time
+		if(mouseX >= (width - 130) && mouseX <= width && mouseY >= (height - 80) && mouseY <= (height - 45)) {
 			rectWidth = 5;
 		}
 	}
 	//title screen
-	if(titleScreenIsRunning) {
-		if(mouseX >= 90 && mouseX <= 230 && mouseY >= 205 && mouseY <= 265) {
+	else if(titleScreenIsRunning) {
+		//single player
+		if(mouseX >= width/14 && mouseX <= (width/14 + 140) && mouseY >= height/3 && mouseY <= (height/3 + 60)) {
 			generateSinglePlayerLevel();
 		}
-		if(mouseX >= 90 && mouseX <= 590 && mouseY >= 280 && mouseY <= 340) {
+
+		//machine learning
+		if(mouseX >= width/14 && mouseX <= (width/14 + 500) && mouseY >= height/2.2 && mouseY <= (height/2.2 + 60)) {
 			resetVariables();
 			startLearning();
 			titleScreenIsRunning = 0;
 			machineLearningIsRunning = 1;
 		}
-		if(mouseX >= 90 && mouseX <= 470 && mouseY >= 355 && mouseY <= 415) {
+
+		//instructionScreen
+		if(mouseX >= width/14 && mouseX <= (width/14 + 380) && mouseY >= height/1.72 && mouseY <= (height/1.72 + 60)) {
 			instructionScreenRunning = true;
 			titleScreenIsRunning = false;
 		}
-		if(mouseX >= 90 && mouseX <= 290 && mouseY >= 740 && mouseY <= 780) {
+		//sound on or off
+		if(mouseX >= width/14 && mouseX <= (width/14 + 200) && mouseY >= (height - 50) && mouseY <= (height - 10)) {
 			if(soundOn == 1) {
 				soundOn = 0;
 			} else {
@@ -211,16 +231,16 @@ function mousePressed() {
 			}
 		}
 
-	}
-	if(instructionScreenRunning) {
-		rect(50, 710, 125, 40);
-		if(mouseX >= 50 && mouseX <= 175 && mouseY >= 710 && mouseY <= 750) {
+	} else if(instructionScreenRunning) {
+		//return to main screen
+		if(mouseX >= 50 && mouseX <= 175 && mouseY >= (height - 60) && mouseY <= (height - 30)) {
 			instructionScreenRunning = false;
 			titleScreenIsRunning = true;
 		}
 	}
 	if(isSinglePlayer) {
-		if(mouseX > 1230 && mouseX < 1375 && mouseY > 740 && mouseY < 775) {
+		//return
+		if(mouseX > width - 180 && mouseX < width - 35 && mouseY > height - 60 && mouseY < height - 30) {
 			resetVariables();
 			isSinglePlayer = false;
 			titleScreenIsRunning = 1;
@@ -308,19 +328,6 @@ function machineLearning() {
 	for(let pipe of pipes) {
 		pipe.show();
 	}
-	push();
-	noStroke();
-	rect(937, 682 + relativeTextHeight, rectWidth, 37);
-	pop();
-
-	push();
-	stroke(255);
-	strokeWeight(3);
-	line(935, 680 + relativeTextHeight, 935, 720 + relativeTextHeight);
-	line(935, 680 + relativeTextHeight, 1200, 680 + relativeTextHeight);
-	line(935, 720 + relativeTextHeight, 1200, 720 + relativeTextHeight);
-	line(1200, 680 + relativeTextHeight, 1200, 720 + relativeTextHeight);
-	pop();
 }
 
 function generateSinglePlayerLevel() {
@@ -369,49 +376,51 @@ function singlePlayer() {
 	textFont(regularFont);
 	textSize(20);
 	fill(50, 255, 50);
-	text("Current Score: " + singlePlayerScore, 1150, 40);
+	text("Current Score: " + singlePlayerScore, width - 220, 40);
 	fill(255, 50, 50);
-	text("HighScore: " + singlePlayerHighScore, 1150, 70);
+	text("HighScore: " + singlePlayerHighScore, width - 220, 70);
 	textSize(40);
 	fill(255, 0, 0);
-	text("RETURN", 1230, 770);
+	text("RETURN", width - 180, height - 30);
 	pop();
 }
 
 function drawText() {
 	push();
 	strokeWeight(5);
-	line(920, 0, 920, height);
-	line(920, 360, 1400, 360);
+	line(width/1.6, 0, width/1.6, height);
+	line(width/1.6, 360, width, 360);
 	pop();
 
 	//textSize = 20
 	textSize(20);
-	//text
-	textSize(20);
 	fill(255);
-	text('BY: UMER JAVED', 1220, 340);
+	text('BY: UMER JAVED', width - 180, 340);
 	textSize(25);
-	text('NEUROEVOLUTION', 1180, 80);
+	text('NEUROEVOLUTION', width - 220, 80);
 	textSize(26);
 	textFont(thinFont);
-	text('JUMP', 1270, 186);
-	text('FALL', 1270, 228);
-	text('CURRENT SCORE:  ' + currentScore, 935, 400);
-	text('HIGHSCORE:  ' + highscore, 935, 430);
-	text('RELATIVE CURRENT SCORE:  ' + relativeCurrentScore, 935, 400 + relativeTextHeight);
-	text('RELATIVE HIGHSCORE:  ' + relativeHighScore, 935, 430 + relativeTextHeight);
-	text('GENERATION:  ' + birdGenerationNumber, 935, 460  + relativeTextHeight);
-	text('MUTATION RATE: ' + mutationRate, 935, 520 + relativeTextHeight);
-	text('BIRD COUNT: ' + birds.length, 935, 580 + relativeTextHeight);
-	text('COST FUNCTION: SIGMOID', 935, 490 + relativeTextHeight);
+	text('JUMP', width - 130, 186);
+	text('FALL', width - 130, 228);
+
+	textSize(20);
+	text('CURRENT SCORE:  ' + currentScore, width/1.6 + 20, 360 + height/18);
+	text('HIGHSCORE:  ' + highscore, width/1.6 + 20, 360 + height/12);
+	text('RELATIVE CURRENT SCORE:  ' + relativeCurrentScore, width/1.6 + 20, 360 + height/8.8);
+	text('RELATIVE HIGHSCORE:  ' + relativeHighScore, width/1.6 + 20, 360 + height/7);
+	text('GENERATION:  ' + birdGenerationNumber, width/1.6 + 20, 360 + height/5.86);
+	text('MUTATION RATE: ' + mutationRate, width/1.6 + 20, 360 + height/5.02);
+	text('BIRD COUNT: ' + birds.length, width/1.6 + 20, 360 + height/4.4);
+	text('COST FUNCTION: SIGMOID', width/1.6 + 20, 360 + height/3.9);
+	let num = Math.round((bestFitness*1000) * 10000) / 10000;
+	text('PRIME FITNESS: ' + num, width/1.6 + 20,360 + height/3.51);
   if(isSufficientlyTrained) {
 		textFont(regularFont);
-		text('SUFFICIENTLY TRAINED', 935, 610 + relativeTextHeight);
+		text('SUFFICIENTLY TRAINED', width/1.6 + 20, 360 + height/3.2);
 		push();
 		stroke(0, 250, 0);
 		strokeWeight(4);
-		line(935, 620 + relativeTextHeight, 1245, 620 + relativeTextHeight);
+		line(width/1.6 + 20, 370 + height/3.2, width/1.6 + 320, 370 + height/3.2);
 		pop();
 	} else {
 		if(trainBlinkEffectCounter  <= 15) {
@@ -422,12 +431,12 @@ function drawText() {
 			fill(250, 40, 40);
 			noStroke();
 			textFont(regularFont);
-			text('NOT SUFFICIENTLY TRAINED', 935, relativeTextHeight + 610);
+			text('NOT SUFFICIENTLY TRAINED', width/1.6 + 20, 360 + height/3.2);
 			pop();
 			push();
 			stroke(250, 0, 0);
 			strokeWeight(4);
-			line(935, 620 + relativeTextHeight, 1310, 620 + relativeTextHeight);
+			line(width/1.6 + 20, 370 + height/3.2, width/1.6 + 320, 370 + height/3.2);
 			pop();
 			if(trainBlinkEffectCounter >= 30) {
 				trainBlinkEffectCounter = 0;
@@ -436,71 +445,113 @@ function drawText() {
 	}
 	textFont(thinFont);
 	textSize(20);
-	text('INCREASE TIME LAPSED', 935, 670 + relativeTextHeight);
+	text('INCREASE TIME LAPSED', width/1.6 + 20, 380 + height/2.9);
 	textSize(26);
 	push();
 	fill(255);
-	rect(1290, 680 + relativeTextHeight, 100, 40);
-	rect(1270, 640 + relativeTextHeight, 125, 30);
+
+	//return
+	fill(255);
+	strokeWeight(3);
+	line(width - 120, height - 22, width - 180, height - 22);
+	line(width - 180, height - 22, width - 160, height - 35);
+	line(width - 180, height - 22, width - 160, height - 9);
+	//return box
+	rect(width - 110, height - 40, 100, 35);
+
+	//reset timebox
+	rect(width - 130, height - 80, 130, 35);
 	fill(0);
 	textFont(regularFont);
 	textSize(20);
-	text('RESET TIME', 1273, 663 + relativeTextHeight);
+	text('RESET TIME', width - 126, height - 55);
 	textSize(26);
-	text('RETURN', 1293, 710 + relativeTextHeight);
 	strokeWeight(3);
-	line(1250, 700 + relativeTextHeight, 1285, 700 + relativeTextHeight);
-	line(1250, 700 + relativeTextHeight, 1260, 710 + relativeTextHeight);
-	line(1250, 700 + relativeTextHeight, 1260, 690 + relativeTextHeight);
+	text('RETURN', width - 106, height - 12);
+
+	//time lapsed
+	line(width/1.6 + 18, 388 + height/2.9, width/1.6 + (width - width/1.6)/2 + 20, 388 + height/2.9);
+	line(width/1.6 + 18, 388 + height/2.9, width/1.6 + 18, 402 + height/2.9 + height/36);
+	line(width/1.6 + 18, 402 + height/2.9 + height/36, width/1.6 + (width - width/1.6)/2 + 20, 402 + height/2.9 + height/36);
+	line(width/1.6 + (width - width/1.6)/2 + 20, 388 + height/2.9, width/1.6 + (width - width/1.6)/2 + 20, 402 + height/2.9 + height/36);
+
+	//return
+
+	//time LAPSEDpush();
+	if(isSufficientlyTrained) {
+		fill(0, 255, 0);
+	} else {
+		fill(255, 0, 0);
+	}
+	noStroke();
+	rect(width/1.6 + 20, 390 + height/2.9, rectWidth, height/36 + 11);
 	pop();
-	let num = Math.round((bestFitness*1000) * 10000) / 10000;
-	text('PRIME FITNESS: ' + num, 935, 550 + relativeTextHeight);
+
 	textSize(55);
-	text('NEURAL NETWORK', 930, 48);
+	text('NEURAL NETWORK', width/1.6 + width/86, 48);
 }
 
 function titleScreen() {
-	let gravity = 0.5;
 	push();
 	fill(255);
-	textFont(thinFont);
-	textSize(40);
-	text("BY UMER JAVED", 400, 150);
+
+	//welcome to bird JUMP text
 	textFont(regularFont);
 	textSize(80);
-	text("WELCOME TO BIRD JUMP", 200, 100);
+	text("WELCOME TO BIRD JUMP", width/2 - width/2.8, height/9);
+
+	//my name
+	textFont(thinFont);
+	textSize(40);
+	text("BY UMER JAVED", width/2 - width/8, height/5);
+
 	fill(255);
-	rect(90, 205, 140, 60);
-	rect(90, 280, 500, 60);
-	rect(90, 355, 380, 60);
-	rect(90, 740, 200, 40);
+	//play rectangle
+	rect(width/14, height/3, 140, 60);
+	//machine learning rectangle
+	rect(width/14, height/2.2, 500, 60);
+	//instructions rectangle
+	rect(width/14, height/1.72, 380, 60);
+	//sound rectangle
+	rect(width/14, height - 50, 200, 40);
+
 	textSize(50);
 	fill(0);
-	text("PLAY", 100, 253);
-	text("MACHINE LEARNING", 100, 330);
-	text("INSTRUCTIONS", 100, 405);
+	text("PLAY", width/14 + 10, height/3 + 50);
+	text("MACHINE LEARNING", width/14 + 10, height/2.2 + 50);
+	text("INSTRUCTIONS", width/14 + 10, height/1.72 + 50);
 	textSize(30);
 	if(soundOn) {
-		text("SOUND: ON", 100, 772);
+		text("SOUND: ON", width/14 + 10, height - 18);
 	} else {
-		text("SOUND: OFF", 100, 772);
+		text("SOUND: OFF", width/14 + 10, height - 18);
 	}
 	pop();
 	push();
 	fill(255);
-	if(titlePageBirdYPosition <= 400) {
+
+	birdAnimation();
+
+	pop();
+}
+
+function birdAnimation() {
+	let gravity = 0.5;
+	if(titlePageBirdYPosition <= windowHeight/1.8) {
 		gravity *= 1;
 	} else {
 		gravity *= -1;
 	}
 	if((titlePageBirdVelocity == 10 && gravity < 0 || titlePageBirdVelocity == -10 && gravity > 0) && soundOn) {
-	  swoosh2Sfx.play();
+		if(titleScreenIsRunning) {
+			swoosh2Sfx.play();
+		} else if(instructionScreenRunning) {
+			swooshSfx.play();
+		}
 	}
 	titlePageBirdVelocity += gravity;
 	titlePageBirdYPosition += titlePageBirdVelocity;
-	ellipse(1000, titlePageBirdYPosition, 100);
-
-	pop();
+	ellipse(width/1.3, titlePageBirdYPosition, 100);
 }
 
 function instructionScreen() {
@@ -514,18 +565,8 @@ function instructionScreen() {
 	 + "THE SPACE BAR TO JUMP AND AVOID\nTHE PIPES AT ALL COSTS. LETS SEE\nHOW FAR YOU CAN MAKE IT. IF NOT,\n"
 	 + "WATCH AN AI, SPECIFICALLY, AN\nARTIFICIAL NEURAL NETWORK LEARN\nTO PLAY THE GAME BETTER THAN ANY\n"
 	 + "HUMAN BY UTILIZING NEUROEVOLUTION\nVIA GENETIC ALGORITHM. GOOD LUCK!", 50, 50);
-	text("RETURN", 50, 740);
-	if(titlePageBirdYPosition <= 400) {
-		gravity *= 1;
-	} else {
-		gravity *= -1;
-	}
-	if((titlePageBirdVelocity == 10 && gravity < 0 || titlePageBirdVelocity == -10 && gravity > 0) && soundOn) {
-	  swooshSfx.play();
-	}
-	titlePageBirdVelocity += gravity;
-	titlePageBirdYPosition += titlePageBirdVelocity;
-	ellipse(1000, titlePageBirdYPosition, 100);
+	text("RETURN", 50, height - 30);
+	birdAnimation();
 	pop();
 
 }
