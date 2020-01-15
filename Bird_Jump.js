@@ -110,7 +110,16 @@ function Neuron(x, y, n) {
 
 	this.connect = function() {
 		for(let i = 0; i < this.nextNode.length ; i++) {
-			let rand = random(100);
+			let rand;
+			if(rectWidth <= (mouseX - (width/1.6 + 20))/4) {
+				rand = random(200);
+			} else if(rectWidth <= (mouseX - (width/1.6 + 20))/2) {
+				rand = random(150);
+			} else if(rectWidth <= (mouseX - ((width/1.6 + 20))/2) + ((mouseX - (width/1.6 + 20))/4)) {
+				rand = random(100);
+			} else {
+				rand = random(50);
+			}
 			push();
 			if(rand < 2) {
 				if(isSufficientlyTrained) {
