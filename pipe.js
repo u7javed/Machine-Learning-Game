@@ -1,9 +1,9 @@
 function Pipe() {
   this.top = random(height/2);
   if(isSinglePlayer) {
-    this.x = 1400;
+    this.x = width;
   } else {
-    this.x = 880;
+    this.x = width/1.6 - 50;
   }
   this.w = 50;
   this.gap = 120;
