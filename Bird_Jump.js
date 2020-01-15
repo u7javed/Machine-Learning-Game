@@ -141,7 +141,13 @@ function Neuron(x, y, n) {
 }
 
 function windowResized() {
-	resizeCanvas(windowWidth, windowHeight);
+	if((402 + height/2.9 + height/36) >= windowHeight) {
+		document.body.style.overflowY = "scroll";
+		resizeCanvas(windowWidth, (402 + height/2.9 + height/36));
+	} else {
+		document.body.style.overflowY = "hidden";
+		resizeCanvas(windowWidth, windowHeight);
+	}
 	resetVariables();
 	titleScreenIsRunning = true;
 	machineLearningIsRunning = false;
@@ -151,7 +157,10 @@ function windowResized() {
 }
 
 function setup() {
-	createCanvas(windowWidth, windowHeight);
+	createCanvas(windowWidth, windowHeight)
+	if((402 + height/2.9 + height/36) >= windowHeight) {
+		document.body.style.overflowY = "scroll";
+	}
 	titlePageBirdYPosition = windowHeight/4;
 	//increaseTimeDurationSlider = createSlider(1, 100, 1);
 }
