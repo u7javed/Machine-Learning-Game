@@ -32,6 +32,7 @@ let mutationRate = 0.2;
 let birdGenerationNumber = 1;
 let bestFitness = 0;
 let isSufficientlyTrained = 0;
+let runInstruction = true;
 
 //machine learning screen
 let machineLearningIsRunning = 0;
@@ -143,7 +144,7 @@ function Neuron(x, y, n) {
 function windowResized() {
 	if((402 + height/2.9 + height/36) >= windowHeight) {
 		document.body.style.overflowY = "scroll";
-		resizeCanvas(windowWidth, (402 + height/2.9 + height/36));
+		resizeCanvas(windowWidth, (402 + height/2.9 + height/36) + 20);
 	} else {
 		document.body.style.overflowY = "hidden";
 		resizeCanvas(windowWidth, windowHeight);
@@ -158,8 +159,10 @@ function windowResized() {
 
 function setup() {
 	createCanvas(windowWidth, windowHeight)
-	if((402 + height/2.9 + height/36) >= windowHeight) {
-		document.body.style.overflowY = "scroll";
+	if((402 + height/2.9 + height/36) <= windowHeight) {
+		document.body.style.overflowY = "hidden";
+	} else if((402 + height/2.9 + height/36) >= windowHeight) {
+		windowResized();
 	}
 	titlePageBirdYPosition = windowHeight/4;
 	//increaseTimeDurationSlider = createSlider(1, 100, 1);
@@ -191,6 +194,9 @@ function draw() {
 	} else if(machineLearningIsRunning) {
 		machineLearning();
 		drawText();
+		if(runInstruction) {
+			instructionDialog();
+		}
 	} else if(instructionScreenRunning) {
 		instructionScreen();
 	} else if(isSinglePlayer) {
@@ -208,7 +214,7 @@ function mousePressed() {
 			titleScreenIsRunning = 1;
 		}
 		//time lapse scroll
-		if(mouseX >= (width/1.6 + 20) && mouseX <= (width/1.6 + 18 + (width - width/1.6)/2) && mouseY >= (390 + height/2.9) && mouseY <= (400 + height/2.9 + height/36)) {
+		else if(mouseX >= (width/1.6 + 20) && mouseX <= (width/1.6 + 18 + (width - width/1.6)/2) && mouseY >= (390 + height/2.9) && mouseY <= (400 + height/2.9 + height/36)) {
 			if(mouseX <= (width/1.6 + 20)) {
 				rectWidth = 1;
 			} else {
@@ -216,8 +222,15 @@ function mousePressed() {
 			}
 		}
 		//reset time
-		if(mouseX >= (width - 130) && mouseX <= width && mouseY >= (height - 80) && mouseY <= (height - 45)) {
+		else if(mouseX >= (width - 130) && mouseX <= width && mouseY >= (height - 80) && mouseY <= (height - 45)) {
 			rectWidth = 5;
+		}
+		//reset machine learning
+		else if(mouseX >= (width - 110) && mouseX <= (width - 10) && mouseY >= (height - 120) && mouseY <= (height - 85)) {
+			resetVariables();
+			startLearning();
+		} else if(mouseX > (width/4 + width/4.4) && mouseX < (width/4 + width/4.4 + width/12) && mouseY > (height/4 + height/1.65) && mouseY < (height/4 + height/1.65 + height/16)) {
+				runInstruction = false;
 		}
 	}
 	//title screen
@@ -231,6 +244,7 @@ function mousePressed() {
 		if(mouseX >= width/14 && mouseX <= (width/14 + 500) && mouseY >= height/2.2 && mouseY <= (height/2.2 + 60)) {
 			resetVariables();
 			startLearning();
+			runInstruction = true;
 			titleScreenIsRunning = 0;
 			machineLearningIsRunning = 1;
 		}
@@ -276,6 +290,29 @@ function keyPressed() {
     	playerBird.up();
   	}
 	}
+}
+
+function instructionDialog() {
+	push();
+	fill(0, 250, 250, 80);
+	rect(width/4, height/5.4, width/2.78, height/1.46, 20);
+	fill(50, 250, 80, 190);
+	rect(width/4 + width/4.4, height/4 + height/1.65, width/12, height/16, 10);
+	fill(255);
+	textSize(width/72);
+	text("Welcome to the MACHINE LEARNING ASPECT\nof the Bird Jump Game. Here, an\n"
+	+ "Artifical Neural Network will learn to\nplay the game by tweaking weights based on\n"
+	+ "which bird has the best fitness called\nprime fitness. The bird with the best\n"
+	+ "fitness will than pass on its data to\nthe network, allowing it to learn.\n\n"
+	+ "YOU CAN TIME LAPSE BY INCREASING THE\nTIME LAPSE BAR at the bottom since\n"
+	+ "training a NN can often take some time.\n"
+	+ "HIT RESET TIME to return time to normal.\n\n"
+	+ "Hit the RED RESET button to start the\ntraining of the network from scratch.\n\n"
+	+ "Hit the RETURN button to return to Menu.", width/4 + width/120, height/4.5);
+	textSize(width/40);
+	strokeWeight(3);
+	text("OK", width/1.98, height/1.104)
+	pop();
 }
 
 function machineLearning() {
@@ -474,11 +511,20 @@ function drawText() {
 	line(width - 120, height - 22, width - 180, height - 22);
 	line(width - 180, height - 22, width - 160, height - 35);
 	line(width - 180, height - 22, width - 160, height - 9);
+
 	//return box
 	rect(width - 110, height - 40, 100, 35);
 
 	//reset timebox
 	rect(width - 130, height - 80, 130, 35);
+
+	//reset Learning
+	push();
+	noStroke();
+	fill(255, 0, 0, 190);
+	rect(width - 110, height - 120, 100, 35);
+	pop();
+
 	fill(0);
 	textFont(regularFont);
 	textSize(20);
@@ -486,6 +532,11 @@ function drawText() {
 	textSize(26);
 	strokeWeight(3);
 	text('RETURN', width - 106, height - 12);
+	push();
+	fill(255);
+	strokeWeight(1);
+	text('RESET', width - 98, height - 94);
+	pop();
 
 	//time lapsed
 	line(width/1.6 + 18, 388 + height/2.9, width/1.6 + (width - width/1.6)/2 + 20, 388 + height/2.9);
