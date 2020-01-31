@@ -466,7 +466,7 @@ function drawText() {
 	text('GENERATION:  ' + birdGenerationNumber, width/1.6 + 20, 360 + height/5.86);
 	text('MUTATION RATE: ' + mutationRate, width/1.6 + 20, 360 + height/5.02);
 	text('BIRD COUNT: ' + birds.length, width/1.6 + 20, 360 + height/4.4);
-	text('COST FUNCTION: SIGMOID', width/1.6 + 20, 360 + height/3.9);
+	text('ACTIVATION FUNCTION: SIGMOID', width/1.6 + 20, 360 + height/3.9);
 	let num = Math.round((bestFitness*1000) * 10000) / 10000;
 	text('PRIME FITNESS: ' + num, width/1.6 + 20,360 + height/3.51);
   if(isSufficientlyTrained) {
